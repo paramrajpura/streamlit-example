@@ -9,7 +9,6 @@ from holoviews import opts, dim
 # hv.extension("matplotlib")
 hv.extension('bokeh')
 hv.output(size=400)
-%matplotlib widget
 
 """
 # Welcome to Streamlit!
