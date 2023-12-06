@@ -1,4 +1,4 @@
-# Welcome to Streamlit!
+# Welcome to the interactive plot to analyse XAI4BCI!
 
 Edit `/streamlit_app.py` to customize this app to your heart's desire. :heart:
 
