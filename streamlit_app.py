@@ -3,12 +3,12 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from itertools import combinations
-
+import bokeh
 import holoviews as hv
 from holoviews import opts, dim
-# hv.extension("matplotlib")
-hv.extension('bokeh')
-hv.output(size=400)
+hv.extension("matplotlib")
+#hv.extension('bokeh', logo=False)
+#hv.output(size=400)
 
 """
 # Welcome to Streamlit!
