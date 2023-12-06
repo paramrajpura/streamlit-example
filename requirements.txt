@@ -1,5 +1,4 @@
-altair
 pandas
 streamlit
-holoviews
-bokeh
+holoviews==1.14
+bokeh==2.4.3
