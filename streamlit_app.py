@@ -6,7 +6,7 @@ from itertools import combinations
 import bokeh
 import holoviews as hv
 from holoviews import opts, dim
-hv.extension("matplotlib")
+#hv.extension("matplotlib")
 #hv.extension('bokeh', logo=False)
 #hv.output(size=400)
 
