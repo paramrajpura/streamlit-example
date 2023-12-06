@@ -2,3 +2,4 @@ altair
 pandas
 streamlit
 holoviews==1.15.0
+bokeh==2.4.3
