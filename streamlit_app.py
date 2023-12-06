@@ -2,6 +2,14 @@ import altair as alt
 import numpy as np
 import pandas as pd
 import streamlit as st
+from itertools import combinations
+
+import holoviews as hv
+from holoviews import opts, dim
+# hv.extension("matplotlib")
+hv.extension('bokeh')
+hv.output(size=400)
+%matplotlib widget
 
 """
 # Welcome to Streamlit!
@@ -13,28 +21,58 @@ forums](https://discuss.streamlit.io).
 In the meantime, below is an example of what you can do with just a few lines of code:
 """
 
-num_points = st.slider("Number of points in spiral", 1, 10000, 1100)
-num_turns = st.slider("Number of turns in spiral", 1, 300, 31)
+df = pd.read_csv('chord.csv')
+df=df.fillna(0)
 
-indices = np.linspace(0, 1, num_points)
-theta = 2 * np.pi * num_turns * indices
-radius = indices
 
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
 
-df = pd.DataFrame({
-    "x": x,
-    "y": y,
-    "idx": indices,
-    "rand": np.random.randn(num_points),
-})
+linkdf = pd.DataFrame(columns=['source', 'target', 'value'])
 
-st.altair_chart(alt.Chart(df, height=700, width=700)
-    .mark_point(filled=True)
-    .encode(
-        x=alt.X("x", axis=None),
-        y=alt.Y("y", axis=None),
-        color=alt.Color("idx", legend=None, scale=alt.Scale()),
-        size=alt.Size("rand", legend=None, scale=alt.Scale(range=[1, 150])),
-    ))
+for col1, col2 in combinations(df.columns,2):
+    list_row = [col1, col2,df.loc[(df[col1] ==1) & (df[col2] ==1),col1].sum()]
+    linkdf.loc[len(linkdf)] = list_row
+#     print(col1,col2)
+
+
+linkdf.value = linkdf.value.astype(int)
+linkdf.target = linkdf.target.astype(int)
+linkdf.source = linkdf.source.astype(int)
+
+nodes = pd.read_csv('nodes.csv')
+print(nodes.columns)
+# nodes.name = nodes.name.str.wrap(15,break_long_words=False)
+nodes_hv = hv.Dataset(nodes, 'index')
+nodes_hv.data.index
+# nodes_hv.columns
+
+def rotate_label(plot, element):    
+    labels = plot.handles["labels"]
+    for annotation in labels:        
+        angle = annotation.get_rotation()
+        annotation.set_size(20)
+        if 90 < angle < 270:
+            annotation.set_rotation(180 + angle)
+            annotation.set_horizontalalignment("right")
+            
+
+def font_size(plot, element):
+    labels = plot.handles["labels"]
+    for annotation in labels:
+        annotation.set_size(20)
+# def rotate_label(plot, element):
+#     white_space = "  "
+#     angles = plot.handles['text_1_source'].data['angle']
+#     characters = np.array(plot.handles['text_1_source'].data['text'])
+#     plot.handles['text_1_source'].data['text'] = np.array([x + white_space if x in characters[np.where((angles < -1.5707963267949) | (angles > 1.5707963267949))] else x for x in plot.handles['text_1_source'].data['text']])
+#     plot.handles['text_1_source'].data['text'] = np.array([white_space + x if x in characters[np.where((angles > -1.5707963267949) | (angles < 1.5707963267949))] else x for x in plot.handles['text_1_source'].data['text']])
+#     angles[np.where((angles < -1.5707963267949) | (angles > 1.5707963267949))] += 3.1415926535898
+#     plot.handles['text_1_source'].text_align = "right"
+    
+    
+# labels = [ '\n'.join(wrap(l, 20)) for l in df.name]
+chord = hv.Chord((linkdf, nodes_hv))#.select(value=(5, None))
+chord.opts(
+    opts.Chord(cmap='Category20', edge_cmap='Category20', edge_color=dim('source').str(), 
+               labels='name', node_color=dim('index').str()))#,hooks=[rotate_label]))
+# chord.opts(fontsize='large')
+st.bokeh_chart(hv.render(chord, backend='bokeh'))
